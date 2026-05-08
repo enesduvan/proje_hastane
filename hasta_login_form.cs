@@ -44,6 +44,9 @@ namespace proje_hastane
         private void button1_Click(object sender, EventArgs e)
         {
             this.Close();
+            thread = new Thread(() => Application.Run(new main_login_form()));
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
         }
 
         //--------------------------------------------------------------------------------------------------------
@@ -60,12 +63,12 @@ namespace proje_hastane
 
         private void button_hasta_giris_Click(object sender, EventArgs e)
         {  //login işlemi
-            SqlCommand komut = new SqlCommand("select * from Table_hasta where hasta_tc = @hasta_tc and hasta_sifre = @hasta_sifre ", baglanti.baglanti());
-            komut.Parameters.AddWithValue("hasta_tc" , msk_tc.Text.ToString());
-            komut.Parameters.AddWithValue("hasta_sifre" , txt_sifre.Text.ToString());
+            DataRow hastaKaydi = baglanti.GetDataRow(
+                "select * from Table_hasta where hasta_tc = @hasta_tc and hasta_sifre = @hasta_sifre",
+                new SqlParameter("@hasta_tc", msk_tc.Text),
+                new SqlParameter("@hasta_sifre", txt_sifre.Text));
 
-            SqlDataReader dataReader = komut.ExecuteReader();
-            if (dataReader.Read())
+            if (hastaKaydi != null)
             {//tc taşıma
                 string tcValue = msk_tc.Text;
                 //eğer şifre ve tc doğruysa onları diğer formumuza yolluyoruz
@@ -82,12 +85,15 @@ namespace proje_hastane
             {
                 MessageBox.Show("kullanıcı bulunumadı lütfen tekrar deneyin","hata",MessageBoxButtons.OK,MessageBoxIcon.Error);
             }
-            baglanti.baglanti().Close();
         }
 
         private void hasta_login_form_Load(object sender, EventArgs e)
         {
-            
+            ModernTheme.StyleForm(this, "Hasta Girisi", "Hasta kayit, randevu secimi ve gecmis islemleri tek noktadan yonet.");
+            txt_sifre.UseSystemPasswordChar = true;
+            button_hasta_giris.Text = "Hasta Paneline Gir";
+            button1.Text = "Ana Menuye Don";
+            lnk_uyeol_hasta_giris.Text = "Yeni hesap olustur";
         }
     }
 

@@ -10,8 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using System.Data.SqlClient;
-
 namespace proje_hastane
 {
     public partial class hasta_kayit_form : Form
@@ -23,7 +21,10 @@ namespace proje_hastane
 
         private void hasta_kayit_form_Load(object sender, EventArgs e)
         {
-
+            ModernTheme.StyleForm(this, "Hasta Kayit", "Yeni hasta olusturma ekranı, kayitlarin stored procedure ile sisteme eklenmesini destekler.");
+            txt_sifre.UseSystemPasswordChar = true;
+            button_hasta_kayit.Text = "Kaydi Tamamla";
+            button2.Text = "Giris Ekranina Don";
         }
         sql_baglantisi baglanti = new sql_baglantisi();
 
@@ -54,23 +55,29 @@ namespace proje_hastane
         //----------------------------------------------------------------------------------------------------------------
         private void button_hasta_kayit_Click(object sender, EventArgs e)
         {
+            SqlParameter[] parameters =
             {
-                SqlCommand komut = new SqlCommand("insert into Table_hasta (hasta_ad , hasta_soyad , hasta_tc ," +
-                    " hasta_telefon , hasta_sifre , hasta_cinsiyet) values (@hasta_ad , @hasta_soyad , @hasta_tc ," +
-                    " @hasta_telefon , @hasta_sifre , @hasta_cinsiyet)", baglanti.baglanti());
+                new SqlParameter("@hasta_ad", txt_ad.Text),
+                new SqlParameter("@hasta_soyad", txt_soyad.Text),
+                new SqlParameter("@hasta_tc", msk_tc.Text),
+                new SqlParameter("@hasta_telefon", msk_telefon.Text),
+                new SqlParameter("@hasta_sifre", txt_sifre.Text),
+                new SqlParameter("@hasta_cinsiyet", cmb_cinsiyet.Text)
+            };
 
-                komut.Parameters.AddWithValue("@hasta_ad", txt_ad.Text);
-                komut.Parameters.AddWithValue("@hasta_soyad", txt_soyad.Text);
-                komut.Parameters.AddWithValue("@hasta_tc", msk_tc.Text.ToString());
-                komut.Parameters.AddWithValue("@hasta_telefon", msk_telefon.Text.ToString());
-                komut.Parameters.AddWithValue("@hasta_sifre", txt_sifre.Text.ToString());
-                komut.Parameters.AddWithValue("@hasta_cinsiyet", cmb_cinsiyet.Text.ToString());
-
-                komut.ExecuteNonQuery();
-                baglanti.baglanti().Close();
-                MessageBox.Show("Kaydınız Gerçekleşti :"+ txt_ad.Text , "Bilgi" , MessageBoxButtons.OK , MessageBoxIcon.Information);
+            if (baglanti.ProcedureExists("sp_HastaKaydet"))
+            {
+                baglanti.ExecuteNonQuery("sp_HastaKaydet", CommandType.StoredProcedure, parameters);
+            }
+            else
+            {
+                baglanti.ExecuteNonQuery(
+                    "insert into Table_hasta (hasta_ad , hasta_soyad , hasta_tc , hasta_telefon , hasta_sifre , hasta_cinsiyet) " +
+                    "values (@hasta_ad , @hasta_soyad , @hasta_tc , @hasta_telefon , @hasta_sifre , @hasta_cinsiyet)",
+                    parameters);
             }
 
+            MessageBox.Show("Kaydınız gerçekleşti: " + txt_ad.Text, "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

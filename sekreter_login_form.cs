@@ -43,14 +43,12 @@ namespace proje_hastane
         }
         private void button_hasta_giris_Click(object sender, EventArgs e)
         {
-            SqlCommand komut = new SqlCommand(
+            DataRow sekreterKaydi = baglanti.GetDataRow(
                 "select sekreter_adsoyad from Table_sekreter where sekreter_tc = @sekreter_tc and sekreter_sifre = @sekreter_sifre",
-                baglanti.baglanti());
-            komut.Parameters.AddWithValue("@sekreter_tc", msk_tc.Text);
-            komut.Parameters.AddWithValue("@sekreter_sifre", txt_sifre.Text);
+                new SqlParameter("@sekreter_tc", msk_tc.Text),
+                new SqlParameter("@sekreter_sifre", txt_sifre.Text));
 
-            SqlDataReader reader = komut.ExecuteReader();
-            if (reader.Read())
+            if (sekreterKaydi != null)
             {
                 string girilenTC = msk_tc.Text; // TC numarasını alıyoruz
 
@@ -66,14 +64,15 @@ namespace proje_hastane
             {
                 MessageBox.Show("Kullanıcı bulunamadı", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
-            baglanti.baglanti().Close();
         }
 
 
         private void sekreter_login_form_Load(object sender, EventArgs e)
         {
-
+            ModernTheme.StyleForm(this, "Sekreter Girisi", "Randevu, duyuru, doktor ve brans yonetimi icin idari kontrol paneli.");
+            txt_sifre.UseSystemPasswordChar = true;
+            button_hasta_giris.Text = "Sekreter Paneline Gir";
+            button1.Text = "Ana Menuye Don";
         }
         //giriş yap butonu --------------------------------------------------------
     }

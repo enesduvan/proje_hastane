@@ -18,43 +18,45 @@ namespace proje_hastane
             InitializeComponent();
         }
 
-        private void doktor_login_form_Load(object sender, EventArgs e)
-        {
-
-        }
         Thread thread;
         sql_baglantisi baglanti = new sql_baglantisi();
         private void button1_Click(object sender, EventArgs e)
         {
             this.Close();
+            thread = new Thread(() => Application.Run(new main_login_form()));
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
         }
 
 
 
         //doktor detay sayfasına gitme-----------------------------------------------------------
-        public void sayfa_guncelle()
-        {
-            Application.Run(new doktor_detay_form());
-        }
         private void button_hasta_giris_Click(object sender, EventArgs e)
         { //login işlemi
-            SqlCommand komut  = new SqlCommand("select * from Table_doktor where doktor_tc = @doktor_tc and doktor_sifre = @doktor_sifre",baglanti.baglanti());
-            komut.Parameters.AddWithValue("doktor_tc",msk_tc.Text.ToString());
-            komut.Parameters.AddWithValue("doktor_sifre",txt_sifre.Text.ToString());
+            DataRow doktorKaydi = baglanti.GetDataRow(
+                "select * from Table_doktor where doktor_tc = @doktor_tc and doktor_sifre = @doktor_sifre",
+                new SqlParameter("@doktor_tc", msk_tc.Text),
+                new SqlParameter("@doktor_sifre", txt_sifre.Text));
 
-            SqlDataReader reader = komut.ExecuteReader();
-            if (reader.Read())
+            if (doktorKaydi != null)
             {  //eğer tabloda okuma sırasında aynı satırda şifre ve tc  başarıyla bulunursa
-                this.Close();
-                thread = new Thread(sayfa_guncelle);
-                thread.SetApartmentState(ApartmentState.STA);
-                thread.Start();
+                this.Hide();
+                doktor_detay_form fr = new doktor_detay_form(msk_tc.Text);
+                fr.FormClosed += (s, args) => this.Close();
+                fr.Show();
             }else
             {
                 MessageBox.Show("Kullanıcı Bulunamadı Lütfen Tekrar Deneyin","Hata",MessageBoxButtons.OK,MessageBoxIcon.Error);
             }
-            baglanti.baglanti().Close();
         }
         //doktor detay sayfasına gitme-----------------------------------------------------------
+
+        private void doktor_login_form_Load(object sender, EventArgs e)
+        {
+            ModernTheme.StyleForm(this, "Doktor Girisi", "Doktor paneli, hasta randevulari ve duyurulara tek ekrandan eris.");
+            txt_sifre.UseSystemPasswordChar = true;
+            button_hasta_giris.Text = "Doktor Paneline Gir";
+            button1.Text = "Ana Menuye Don";
+        }
     }
 }

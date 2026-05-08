@@ -52,6 +52,7 @@
     <Compile Include="brans_paneli_form.Designer.cs">
       <DependentUpon>brans_paneli_form.cs</DependentUpon>
     </Compile>
+    <Compile Include="DatabaseBootstrapper.cs" />
     <Compile Include="doktor_bilgi_guncelle.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -106,6 +107,7 @@
     <Compile Include="main_login_form.Designer.cs">
       <DependentUpon>main_login_form.cs</DependentUpon>
     </Compile>
+    <Compile Include="ModernTheme.cs" />
     <Compile Include="hasta_login_form.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -120,7 +122,6 @@
     <Compile Include="randevu_paneli_form.Designer.cs">
       <DependentUpon>randevu_paneli_form.cs</DependentUpon>
     </Compile>
-    <Compile Include="Sayfa_guncelle.cs" />
     <Compile Include="sekreter_detay_form.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -139,6 +140,9 @@
     </Compile>
     <Compile Include="test.Designer.cs">
       <DependentUpon>test.cs</DependentUpon>
+    </Compile>
+    <Compile Include="yonetim_ozeti_form.cs">
+      <SubType>Form</SubType>
     </Compile>
     <EmbeddedResource Include="brans_paneli_form.resx">
       <DependentUpon>brans_paneli_form.cs</DependentUpon>
@@ -194,6 +198,7 @@
     <EmbeddedResource Include="test.resx">
       <DependentUpon>test.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Database\hastane_donem_projesi.sql" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

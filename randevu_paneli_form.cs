@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+using System;
 using System.Data;
-using System.Data.SqlClient;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Data.SqlClient;
 
 namespace proje_hastane
 {
     public partial class randevu_paneli_form : Form
     {
+        private readonly sql_baglantisi baglanti = new sql_baglantisi();
+
         public randevu_paneli_form()
         {
             InitializeComponent();
@@ -21,11 +15,18 @@ namespace proje_hastane
 
         private void randevu_paneli_form_Load(object sender, EventArgs e)
         {
-            sql_baglantisi baglanti = new sql_baglantisi();
-            DataTable dt = new DataTable();
-            SqlDataAdapter adapter2 = new SqlDataAdapter("select * from Table_randevu", baglanti.baglanti());
-            adapter2.Fill(dt);
-            dataGridView1.DataSource = dt;
+            ModernTheme.StyleForm(this, "Randevu Listesi", "Randevulari view uzerinden daha anlamli kolonlarla goruntule.");
+
+            try
+            {
+                dataGridView1.DataSource = baglanti.GetDataTable(
+                    "select * from vw_RandevuSunum order by randevu_id desc");
+            }
+            catch
+            {
+                dataGridView1.DataSource = baglanti.GetDataTable(
+                    "select * from Table_randevu order by randevu_id desc");
+            }
         }
     }
 }
