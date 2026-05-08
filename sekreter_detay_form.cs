@@ -201,11 +201,16 @@ namespace proje_hastane
             try
             {
                 dataGridView1.DataSource = baglanti.GetDataTable(
-                    "select b.brans_id, b.brans_ad, p.poliklinik_ad, b.aktif from Table_brans b left join Table_poliklinik p on p.poliklinik_id = b.poliklinik_id order by b.brans_ad");
+                    "SELECT b.brans_id, b.brans_ad, p.poliklinik_ad, b.aktif " +
+                    "FROM Table_brans b LEFT JOIN Table_poliklinik p ON p.poliklinik_id = b.poliklinik_id " +
+                    "ORDER BY b.brans_ad");
             }
             catch
             {
-                dataGridView1.DataSource = baglanti.GetDataTable("select * from Table_brans");
+                dataGridView1.DataSource = baglanti.GetDataTable(
+                    "SELECT b.brans_id, b.brans_ad, p.poliklinik_ad " +
+                    "FROM Table_brans b LEFT JOIN Table_poliklinik p ON p.poliklinik_id = b.poliklinik_id " +
+                    "ORDER BY b.brans_ad");
             }
         }
 

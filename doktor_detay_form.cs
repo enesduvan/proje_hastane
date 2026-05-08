@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -27,20 +27,18 @@ namespace proje_hastane
         }
 
 
-        //doktor bilgi günceleme sayfasına gidiş --------------------------------------------
+        //doktor bilgi güncelleme sayfasına gidiş --------------------------------------------
         Thread thread;
         public void sayfa_degistir()
         {
-            Application.Run(new doktor_bilgi_guncelle());
+            Application.Run(new doktor_bilgi_guncelle(_tc));
         }
         private void lnk_bilgi_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            {
-                this.Close();
-                thread = new Thread(sayfa_degistir);
-                thread.SetApartmentState(ApartmentState.STA);
-                thread.Start();
-            }
+            this.Close();
+            thread = new Thread(sayfa_degistir);
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
         }
 
         private void button_duyuru_Click(object sender, EventArgs e)

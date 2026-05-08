@@ -1013,3 +1013,259 @@ BEGIN
     LEFT JOIN deleted d ON d.randevu_id = i.randevu_id;
 END;
 GO
+-- ================================================================
+-- EK SEED VERISI - Daha zengin demo veritabani icin
+-- ================================================================
+
+-- Ek Branslar (yoksa ekle)
+IF NOT EXISTS (SELECT 1 FROM dbo.Table_brans WHERE brans_ad = N'Cildiye')
+    INSERT INTO dbo.Table_brans (brans_ad, poliklinik_id)
+    SELECT N'Cildiye', poliklinik_id FROM dbo.Table_poliklinik WHERE poliklinik_ad = N'Dahiliye Merkezi';
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Table_brans WHERE brans_ad = N'Dahiliye')
+    INSERT INTO dbo.Table_brans (brans_ad, poliklinik_id)
+    SELECT N'Dahiliye', poliklinik_id FROM dbo.Table_poliklinik WHERE poliklinik_ad = N'Dahiliye Merkezi';
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Table_brans WHERE brans_ad = N'Psikiyatri')
+    INSERT INTO dbo.Table_brans (brans_ad, poliklinik_id)
+    SELECT N'Psikiyatri', poliklinik_id FROM dbo.Table_poliklinik WHERE poliklinik_ad = N'Dahiliye Merkezi';
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Table_brans WHERE brans_ad = N'Genel Cerrahi')
+    INSERT INTO dbo.Table_brans (brans_ad, poliklinik_id)
+    SELECT N'Genel Cerrahi', poliklinik_id FROM dbo.Table_poliklinik WHERE poliklinik_ad = N'Cerrahi Merkezi';
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Table_brans WHERE brans_ad = N'Kulak Burun Bogaz')
+    INSERT INTO dbo.Table_brans (brans_ad, poliklinik_id)
+    SELECT N'Kulak Burun Bogaz', poliklinik_id FROM dbo.Table_poliklinik WHERE poliklinik_ad = N'Tani ve Goruntuleme';
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Table_brans WHERE brans_ad = N'Radyoloji')
+    INSERT INTO dbo.Table_brans (brans_ad, poliklinik_id)
+    SELECT N'Radyoloji', poliklinik_id FROM dbo.Table_poliklinik WHERE poliklinik_ad = N'Tani ve Goruntuleme';
+GO
+
+-- Ek Odalar
+IF NOT EXISTS (SELECT 1 FROM dbo.Table_oda WHERE oda_kodu = N'A203')
+    INSERT INTO dbo.Table_oda (oda_kodu, kat_no, brans_id, oda_durumu)
+    SELECT N'A203', 2, brans_id, N'Hazir' FROM dbo.Table_brans WHERE brans_ad = N'Cildiye';
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Table_oda WHERE oda_kodu = N'A204')
+    INSERT INTO dbo.Table_oda (oda_kodu, kat_no, brans_id, oda_durumu)
+    SELECT N'A204', 2, brans_id, N'Hazir' FROM dbo.Table_brans WHERE brans_ad = N'Dahiliye';
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Table_oda WHERE oda_kodu = N'B302')
+    INSERT INTO dbo.Table_oda (oda_kodu, kat_no, brans_id, oda_durumu)
+    SELECT N'B302', 3, brans_id, N'Hazir' FROM dbo.Table_brans WHERE brans_ad = N'Genel Cerrahi';
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Table_oda WHERE oda_kodu = N'C101')
+    INSERT INTO dbo.Table_oda (oda_kodu, kat_no, brans_id, oda_durumu)
+    SELECT N'C101', 1, brans_id, N'Hazir' FROM dbo.Table_brans WHERE brans_ad = N'Kulak Burun Bogaz';
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Table_oda WHERE oda_kodu = N'C102')
+    INSERT INTO dbo.Table_oda (oda_kodu, kat_no, brans_id, oda_durumu)
+    SELECT N'C102', 1, brans_id, N'Hazir' FROM dbo.Table_brans WHERE brans_ad = N'Radyoloji';
+GO
+
+-- Ek Doktorlar
+IF NOT EXISTS (SELECT 1 FROM dbo.Table_doktor WHERE doktor_tc = N'11111111121')
+    INSERT INTO dbo.Table_doktor (doktor_ad, doktor_soyad, doktor_brans, doktor_tc, doktor_sifre, brans_id, poliklinik_id, oda_id)
+    SELECT N'Selin', N'Ozturk', N'Cildiye', N'11111111121', N'1234', b.brans_id, b.poliklinik_id, o.oda_id
+    FROM dbo.Table_brans b LEFT JOIN dbo.Table_oda o ON o.brans_id = b.brans_id AND o.oda_kodu = N'A203'
+    WHERE b.brans_ad = N'Cildiye';
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Table_doktor WHERE doktor_tc = N'11111111122')
+    INSERT INTO dbo.Table_doktor (doktor_ad, doktor_soyad, doktor_brans, doktor_tc, doktor_sifre, brans_id, poliklinik_id, oda_id)
+    SELECT N'Can', N'Aksoy', N'Dahiliye', N'11111111122', N'1234', b.brans_id, b.poliklinik_id, o.oda_id
+    FROM dbo.Table_brans b LEFT JOIN dbo.Table_oda o ON o.brans_id = b.brans_id AND o.oda_kodu = N'A204'
+    WHERE b.brans_ad = N'Dahiliye';
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Table_doktor WHERE doktor_tc = N'11111111123')
+    INSERT INTO dbo.Table_doktor (doktor_ad, doktor_soyad, doktor_brans, doktor_tc, doktor_sifre, brans_id, poliklinik_id, oda_id)
+    SELECT N'Deniz', N'Yildiz', N'Genel Cerrahi', N'11111111123', N'1234', b.brans_id, b.poliklinik_id, o.oda_id
+    FROM dbo.Table_brans b LEFT JOIN dbo.Table_oda o ON o.brans_id = b.brans_id AND o.oda_kodu = N'B302'
+    WHERE b.brans_ad = N'Genel Cerrahi';
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Table_doktor WHERE doktor_tc = N'11111111124')
+    INSERT INTO dbo.Table_doktor (doktor_ad, doktor_soyad, doktor_brans, doktor_tc, doktor_sifre, brans_id, poliklinik_id, oda_id)
+    SELECT N'Baris', N'Kaplan', N'Kulak Burun Bogaz', N'11111111124', N'1234', b.brans_id, b.poliklinik_id, o.oda_id
+    FROM dbo.Table_brans b LEFT JOIN dbo.Table_oda o ON o.brans_id = b.brans_id AND o.oda_kodu = N'C101'
+    WHERE b.brans_ad = N'Kulak Burun Bogaz';
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Table_doktor WHERE doktor_tc = N'11111111125')
+    INSERT INTO dbo.Table_doktor (doktor_ad, doktor_soyad, doktor_brans, doktor_tc, doktor_sifre, brans_id, poliklinik_id, oda_id)
+    SELECT N'Nazli', N'Cetin', N'Psikiyatri', N'11111111125', N'1234', b.brans_id, b.poliklinik_id, NULL
+    FROM dbo.Table_brans b WHERE b.brans_ad = N'Psikiyatri';
+GO
+
+-- Ek Hastalar
+IF NOT EXISTS (SELECT 1 FROM dbo.Table_hasta WHERE hasta_tc = N'22222222230')
+    INSERT INTO dbo.Table_hasta (hasta_ad, hasta_soyad, hasta_tc, hasta_telefon, hasta_sifre, hasta_cinsiyet)
+    VALUES
+    (N'Mustafa', N'Kara', N'22222222230', N'05559990001', N'1234', N'Erkek'),
+    (N'Gulsum', N'Arslan', N'22222222231', N'05559990002', N'1234', N'Kadin'),
+    (N'Ibrahim', N'Yurt', N'22222222232', N'05559990003', N'1234', N'Erkek'),
+    (N'Leyla', N'Dogan', N'22222222233', N'05559990004', N'1234', N'Kadin'),
+    (N'Onur', N'Simsek', N'22222222234', N'05559990005', N'1234', N'Erkek'),
+    (N'Reyhan', N'Polat', N'22222222235', N'05559990006', N'1234', N'Kadin'),
+    (N'Taner', N'Bulut', N'22222222236', N'05559990007', N'1234', N'Erkek'),
+    (N'Meryem', N'Ay', N'22222222237', N'05559990008', N'1234', N'Kadin');
+GO
+
+-- Ek Sekreterler
+IF NOT EXISTS (SELECT 1 FROM dbo.Table_sekreter WHERE sekreter_tc = N'33333333334')
+    INSERT INTO dbo.Table_sekreter (sekreter_tc, sekreter_adsoyad, sekreter_sifre, vardiya)
+    VALUES (N'33333333334', N'Ayse Demir', N'1234', N'Gece'),
+           (N'33333333335', N'Mehmet Sahin', N'1234', N'Gunduz');
+GO
+
+-- Ek Randevular (tum doktorlar icin)
+IF (SELECT COUNT(*) FROM dbo.Table_randevu) < 20
+BEGIN
+    -- Kardiyoloji - Ayse Yilmaz (11111111111)
+    INSERT INTO dbo.Table_randevu (randevu_tarih, randevu_saat, randevu_brans, randevu_doktor, randevu_durum, hasta_tc, sekreter_tc, brans_id, doktor_id, hasta_id)
+    SELECT N'14.05.2026', N'09:00', N'Kardiyoloji', CONCAT(d.doktor_ad, N' ', d.doktor_soyad), 0, NULL, N'33333333333', b.brans_id, d.doktor_id, NULL
+    FROM dbo.Table_doktor d INNER JOIN dbo.Table_brans b ON b.brans_id = d.brans_id WHERE d.doktor_tc = N'11111111111';
+
+    INSERT INTO dbo.Table_randevu (randevu_tarih, randevu_saat, randevu_brans, randevu_doktor, randevu_durum, hasta_tc, sekreter_tc, brans_id, doktor_id, hasta_id)
+    SELECT N'14.05.2026', N'10:30', N'Kardiyoloji', CONCAT(d.doktor_ad, N' ', d.doktor_soyad), 1, N'22222222222', N'33333333333', b.brans_id, d.doktor_id, h.hasta_id
+    FROM dbo.Table_doktor d INNER JOIN dbo.Table_brans b ON b.brans_id = d.brans_id INNER JOIN dbo.Table_hasta h ON h.hasta_tc = N'22222222222' WHERE d.doktor_tc = N'11111111111';
+
+    INSERT INTO dbo.Table_randevu (randevu_tarih, randevu_saat, randevu_brans, randevu_doktor, randevu_durum, hasta_tc, sekreter_tc, brans_id, doktor_id, hasta_id)
+    SELECT N'15.05.2026', N'11:00', N'Kardiyoloji', CONCAT(d.doktor_ad, N' ', d.doktor_soyad), 1, N'22222222223', N'33333333333', b.brans_id, d.doktor_id, h.hasta_id
+    FROM dbo.Table_doktor d INNER JOIN dbo.Table_brans b ON b.brans_id = d.brans_id INNER JOIN dbo.Table_hasta h ON h.hasta_tc = N'22222222223' WHERE d.doktor_tc = N'11111111111';
+
+    -- Ortopedi - Mehmet Demir (11111111112)
+    INSERT INTO dbo.Table_randevu (randevu_tarih, randevu_saat, randevu_brans, randevu_doktor, randevu_durum, hasta_tc, sekreter_tc, brans_id, doktor_id, hasta_id)
+    SELECT N'14.05.2026', N'09:30', N'Ortopedi', CONCAT(d.doktor_ad, N' ', d.doktor_soyad), 0, NULL, N'33333333333', b.brans_id, d.doktor_id, NULL
+    FROM dbo.Table_doktor d INNER JOIN dbo.Table_brans b ON b.brans_id = d.brans_id WHERE d.doktor_tc = N'11111111112';
+
+    INSERT INTO dbo.Table_randevu (randevu_tarih, randevu_saat, randevu_brans, randevu_doktor, randevu_durum, hasta_tc, sekreter_tc, brans_id, doktor_id, hasta_id)
+    SELECT N'14.05.2026', N'11:00', N'Ortopedi', CONCAT(d.doktor_ad, N' ', d.doktor_soyad), 1, N'22222222224', N'33333333333', b.brans_id, d.doktor_id, h.hasta_id
+    FROM dbo.Table_doktor d INNER JOIN dbo.Table_brans b ON b.brans_id = d.brans_id INNER JOIN dbo.Table_hasta h ON h.hasta_tc = N'22222222224' WHERE d.doktor_tc = N'11111111112';
+
+    -- Noroloji - Zeynep (11111111113)
+    INSERT INTO dbo.Table_randevu (randevu_tarih, randevu_saat, randevu_brans, randevu_doktor, randevu_durum, hasta_tc, sekreter_tc, brans_id, doktor_id, hasta_id)
+    SELECT N'15.05.2026', N'08:30', N'Noroloji', CONCAT(d.doktor_ad, N' ', d.doktor_soyad), 0, NULL, N'33333333333', b.brans_id, d.doktor_id, NULL
+    FROM dbo.Table_doktor d INNER JOIN dbo.Table_brans b ON b.brans_id = d.brans_id WHERE d.doktor_tc = N'11111111113';
+
+    INSERT INTO dbo.Table_randevu (randevu_tarih, randevu_saat, randevu_brans, randevu_doktor, randevu_durum, hasta_tc, sekreter_tc, brans_id, doktor_id, hasta_id)
+    SELECT N'15.05.2026', N'10:00', N'Noroloji', CONCAT(d.doktor_ad, N' ', d.doktor_soyad), 1, N'22222222225', N'33333333333', b.brans_id, d.doktor_id, h.hasta_id
+    FROM dbo.Table_doktor d INNER JOIN dbo.Table_brans b ON b.brans_id = d.brans_id INNER JOIN dbo.Table_hasta h ON h.hasta_tc = N'22222222225' WHERE d.doktor_tc = N'11111111113';
+
+    -- Goz - Kemal (11111111114)
+    INSERT INTO dbo.Table_randevu (randevu_tarih, randevu_saat, randevu_brans, randevu_doktor, randevu_durum, hasta_tc, sekreter_tc, brans_id, doktor_id, hasta_id)
+    SELECT N'16.05.2026', N'09:00', N'Goz Hastaliklari', CONCAT(d.doktor_ad, N' ', d.doktor_soyad), 0, NULL, N'33333333333', b.brans_id, d.doktor_id, NULL
+    FROM dbo.Table_doktor d INNER JOIN dbo.Table_brans b ON b.brans_id = d.brans_id WHERE d.doktor_tc = N'11111111114';
+
+    INSERT INTO dbo.Table_randevu (randevu_tarih, randevu_saat, randevu_brans, randevu_doktor, randevu_durum, hasta_tc, sekreter_tc, brans_id, doktor_id, hasta_id)
+    SELECT N'16.05.2026', N'10:00', N'Goz Hastaliklari', CONCAT(d.doktor_ad, N' ', d.doktor_soyad), 1, N'22222222226', N'33333333333', b.brans_id, d.doktor_id, h.hasta_id
+    FROM dbo.Table_doktor d INNER JOIN dbo.Table_brans b ON b.brans_id = d.brans_id INNER JOIN dbo.Table_hasta h ON h.hasta_tc = N'22222222226' WHERE d.doktor_tc = N'11111111114';
+
+    -- Cildiye - Selin Ozturk (11111111121)
+    INSERT INTO dbo.Table_randevu (randevu_tarih, randevu_saat, randevu_brans, randevu_doktor, randevu_durum, hasta_tc, sekreter_tc, brans_id, doktor_id, hasta_id)
+    SELECT N'14.05.2026', N'14:00', N'Cildiye', CONCAT(d.doktor_ad, N' ', d.doktor_soyad), 0, NULL, N'33333333333', b.brans_id, d.doktor_id, NULL
+    FROM dbo.Table_doktor d INNER JOIN dbo.Table_brans b ON b.brans_id = d.brans_id WHERE d.doktor_tc = N'11111111121';
+
+    INSERT INTO dbo.Table_randevu (randevu_tarih, randevu_saat, randevu_brans, randevu_doktor, randevu_durum, hasta_tc, sekreter_tc, brans_id, doktor_id, hasta_id)
+    SELECT N'14.05.2026', N'15:00', N'Cildiye', CONCAT(d.doktor_ad, N' ', d.doktor_soyad), 1, N'22222222227', N'33333333333', b.brans_id, d.doktor_id, h.hasta_id
+    FROM dbo.Table_doktor d INNER JOIN dbo.Table_brans b ON b.brans_id = d.brans_id INNER JOIN dbo.Table_hasta h ON h.hasta_tc = N'22222222227' WHERE d.doktor_tc = N'11111111121';
+
+    -- KBB - Baris Kaplan (11111111124)
+    INSERT INTO dbo.Table_randevu (randevu_tarih, randevu_saat, randevu_brans, randevu_doktor, randevu_durum, hasta_tc, sekreter_tc, brans_id, doktor_id, hasta_id)
+    SELECT N'17.05.2026', N'09:00', N'Kulak Burun Bogaz', CONCAT(d.doktor_ad, N' ', d.doktor_soyad), 0, NULL, N'33333333333', b.brans_id, d.doktor_id, NULL
+    FROM dbo.Table_doktor d INNER JOIN dbo.Table_brans b ON b.brans_id = d.brans_id WHERE d.doktor_tc = N'11111111124';
+
+    INSERT INTO dbo.Table_randevu (randevu_tarih, randevu_saat, randevu_brans, randevu_doktor, randevu_durum, hasta_tc, sekreter_tc, brans_id, doktor_id, hasta_id)
+    SELECT N'17.05.2026', N'10:00', N'Kulak Burun Bogaz', CONCAT(d.doktor_ad, N' ', d.doktor_soyad), 1, N'22222222228', N'33333333333', b.brans_id, d.doktor_id, h.hasta_id
+    FROM dbo.Table_doktor d INNER JOIN dbo.Table_brans b ON b.brans_id = d.brans_id INNER JOIN dbo.Table_hasta h ON h.hasta_tc = N'22222222228' WHERE d.doktor_tc = N'11111111124';
+END;
+GO
+
+-- Randevu sikayetlerini doldur (dolu randevular)
+UPDATE dbo.Table_randevu
+SET randevu_sikayet = N'Gogus agrisi ve nefes darligi sikayeti.'
+WHERE randevu_brans = N'Kardiyoloji' AND randevu_durum = 1 AND (randevu_sikayet IS NULL OR randevu_sikayet = '');
+GO
+
+UPDATE dbo.Table_randevu
+SET randevu_sikayet = N'Diz ekleminde siddetli agri, merdivenlerden inip cikmakta zorluk.'
+WHERE randevu_brans = N'Ortopedi' AND randevu_durum = 1 AND (randevu_sikayet IS NULL OR randevu_sikayet = '');
+GO
+
+UPDATE dbo.Table_randevu
+SET randevu_sikayet = N'Bas agrisi, bas donmesi ve ellerde uyusma sikayeti.'
+WHERE randevu_brans = N'Noroloji' AND randevu_durum = 1 AND (randevu_sikayet IS NULL OR randevu_sikayet = '');
+GO
+
+UPDATE dbo.Table_randevu
+SET randevu_sikayet = N'Gormede bulaniklik ve gozde yanik hissi.'
+WHERE randevu_brans = N'Goz Hastaliklari' AND randevu_durum = 1 AND (randevu_sikayet IS NULL OR randevu_sikayet = '');
+GO
+
+UPDATE dbo.Table_randevu
+SET randevu_sikayet = N'Yuzde kizariklik ve ciltte deri dokulme sikayeti.'
+WHERE randevu_brans = N'Cildiye' AND randevu_durum = 1 AND (randevu_sikayet IS NULL OR randevu_sikayet = '');
+GO
+
+UPDATE dbo.Table_randevu
+SET randevu_sikayet = N'Kulak tinlamasi ve isitme kaybi sikayeti.'
+WHERE randevu_brans = N'Kulak Burun Bogaz' AND randevu_durum = 1 AND (randevu_sikayet IS NULL OR randevu_sikayet = '');
+GO
+
+-- Ilac verisi
+IF NOT EXISTS (SELECT 1 FROM dbo.Table_ilac)
+BEGIN
+    INSERT INTO dbo.Table_ilac (ilac_ad, kullanim_sekli) VALUES
+    (N'Parol', N'Gunde 3 kez, yemeklerden sonra 1 tablet'),
+    (N'Coraspin', N'Gunde 1 kez, sabah 1 tablet'),
+    (N'Amoksisilin', N'Gunde 2 kez, 7 gun boyunca'),
+    (N'Metformin', N'Yemekle birlikte gunde 2 kez'),
+    (N'Lipitor', N'Gunce 1 kez, aksam 1 tablet'),
+    (N'Betaserc', N'Gunde 3 kez 1 tablet, 4 hafta'),
+    (N'Diklofenak', N'Gunde 2 kez, 5 gun boyunca'),
+    (N'Losartan', N'Gunde 1 kez 50mg'),
+    (N'Omeprazol', N'Yemekten once gunde 1 kez'),
+    (N'Seretide', N'Gunde 2 kez inhaler');
+END;
+GO
+
+-- Duyuru verisi
+IF NOT EXISTS (SELECT 1 FROM dbo.Table_duyuru)
+BEGIN
+    INSERT INTO dbo.Table_duyuru (duyuru, olusturan_tc) VALUES
+    (N'Hastane periyodik bakimi nedeniyle 20 Mayis tarihinde bazi poliklinikler kapali olacaktir.', N'33333333333'),
+    (N'Yeni MR cihazi 15 Mayis itibariyle hizmete girmistir.', N'33333333333'),
+    (N'Randevu saatinizden 15 dakika once kayit masasina geliniz.', N'33333333333'),
+    (N'Saglik kartinizi her muayenede yaninizdaa bulundurunuz.', N'33333333333'),
+    (N'Kardiyoloji poliklinigi saat 08:00-17:00 arasinda hizmet vermektedir.', N'33333333333');
+END;
+GO
+
+-- Odeme verisi (dolu randevular icin)
+INSERT INTO dbo.Table_odeme (randevu_id, tutar, odeme_tipi, odeme_durumu)
+SELECT r.randevu_id, 250.00, N'Kart', N'Odendi'
+FROM dbo.Table_randevu r
+WHERE r.randevu_durum = 1
+  AND NOT EXISTS (SELECT 1 FROM dbo.Table_odeme o WHERE o.randevu_id = r.randevu_id);
+GO
+
+-- Table_brans'a aktif ve olusturma_tarihi sutunu ekle (yoksa)
+IF COL_LENGTH('dbo.Table_brans', 'aktif') IS NULL
+    ALTER TABLE dbo.Table_brans ADD aktif BIT NOT NULL CONSTRAINT DF_Table_brans_aktif DEFAULT (1);
+GO
+
+IF COL_LENGTH('dbo.Table_brans', 'olusturma_tarihi') IS NULL
+    ALTER TABLE dbo.Table_brans ADD olusturma_tarihi DATETIME NOT NULL CONSTRAINT DF_Table_brans_olusturma DEFAULT (GETDATE());
+GO

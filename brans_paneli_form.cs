@@ -111,15 +111,8 @@ namespace proje_hastane
 
         private void RefreshBranches()
         {
-            try
-            {
-                dataGridView1.DataSource = baglanti.GetDataTable(
-                    "select brans_id, brans_ad, aktif, olusturma_tarihi from Table_brans order by brans_ad");
-            }
-            catch
-            {
-                dataGridView1.DataSource = baglanti.GetDataTable("select * from Table_brans");
-            }
+            dataGridView1.DataSource = baglanti.GetDataTable(
+                "SELECT brans_id, brans_ad FROM dbo.Table_brans ORDER BY brans_ad");
         }
 
         private void ArrangeLayout()

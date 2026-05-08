@@ -1,4 +1,4 @@
-﻿namespace proje_hastane
+namespace proje_hastane
 {
     partial class doktor_bilgi_guncelle
     {
@@ -78,6 +78,7 @@
             this.button_hasta_kayit.TabIndex = 48;
             this.button_hasta_kayit.Text = "Güncelle";
             this.button_hasta_kayit.UseVisualStyleBackColor = false;
+            this.button_hasta_kayit.Click += new System.EventHandler(this.button_hasta_kayit_Click);
             // 
             // txt_sifre
             // 
@@ -208,7 +209,8 @@
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Name = "doktor_bilgi_guncelle";
-            this.Text = "doktor_bilgi_guncelle";
+            this.Text = "Doktor Bilgi Guncelleme";
+            this.Load += new System.EventHandler(this.doktor_bilgi_guncelle_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
