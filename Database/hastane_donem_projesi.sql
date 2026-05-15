@@ -1269,3 +1269,88 @@ GO
 IF COL_LENGTH('dbo.Table_brans', 'olusturma_tarihi') IS NULL
     ALTER TABLE dbo.Table_brans ADD olusturma_tarihi DATETIME NOT NULL CONSTRAINT DF_Table_brans_olusturma DEFAULT (GETDATE());
 GO
+
+-- ================================================================
+-- EKSIK SP: sp_HastaSil - Hasta CRUD tamamlama (DELETE)
+-- ================================================================
+IF OBJECT_ID('dbo.sp_HastaSil', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.sp_HastaSil;
+GO
+
+CREATE PROCEDURE dbo.sp_HastaSil
+    @hasta_tc CHAR(11)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    -- Soft delete (aktif = 0)
+    UPDATE dbo.Table_hasta SET aktif = 0 WHERE hasta_tc = @hasta_tc;
+END;
+GO
+
+-- ================================================================
+-- EKSIK SP: sp_RandevuSil - Randevu CRUD tamamlama (DELETE)
+-- ================================================================
+IF OBJECT_ID('dbo.sp_RandevuSil', 'P') IS NOT NULL
+    DROP PROCEDURE dbo.sp_RandevuSil;
+GO
+
+CREATE PROCEDURE dbo.sp_RandevuSil
+    @randevu_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DELETE FROM dbo.Table_odeme WHERE randevu_id = @randevu_id;
+    DELETE FROM dbo.Table_randevu WHERE randevu_id = @randevu_id;
+END;
+GO
+
+-- ================================================================
+-- EKSIK TRIGGER: trg_Hasta_Log - Hasta tablosu degisiklik logu
+-- ================================================================
+IF OBJECT_ID('dbo.trg_Hasta_Log', 'TR') IS NOT NULL
+    DROP TRIGGER dbo.trg_Hasta_Log;
+GO
+
+CREATE TRIGGER dbo.trg_Hasta_Log
+ON dbo.Table_hasta
+AFTER INSERT, UPDATE, DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO dbo.Table_kullanici_log (tablo_adi, islem_turu, aciklama, islem_yapan)
+    SELECT
+        N'Table_hasta',
+        CASE
+            WHEN EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted) THEN N'UPDATE'
+            WHEN EXISTS (SELECT 1 FROM inserted) THEN N'INSERT'
+            ELSE N'DELETE'
+        END,
+        N'Hasta tablosunda degisiklik yapildi.',
+        SYSTEM_USER;
+END;
+GO
+
+-- ================================================================
+-- EKSIK VIEW: vw_OdemeRaporu - Odeme ozet view'i
+-- ================================================================
+IF OBJECT_ID('dbo.vw_OdemeRaporu', 'V') IS NOT NULL
+    DROP VIEW dbo.vw_OdemeRaporu;
+GO
+
+CREATE VIEW dbo.vw_OdemeRaporu
+AS
+SELECT
+    o.odeme_id,
+    r.randevu_tarih,
+    r.randevu_brans,
+    r.randevu_doktor,
+    ISNULL(h.hasta_ad + N' ' + h.hasta_soyad, N'Hasta Atanmamis') AS hasta_adsoyad,
+    o.tutar,
+    o.odeme_tipi,
+    o.odeme_durumu,
+    o.odeme_tarihi
+FROM dbo.Table_odeme o
+INNER JOIN dbo.Table_randevu r ON r.randevu_id = o.randevu_id
+LEFT JOIN dbo.Table_hasta h ON h.hasta_id = r.hasta_id;
+GO

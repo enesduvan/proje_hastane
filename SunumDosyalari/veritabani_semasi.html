@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+body { font-family: Calibri, sans-serif; padding: 20px; }
+table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+th { background-color: #f2f2f2; }
+pre { background-color: #f8f8f8; padding: 10px; border: 1px solid #ddd; }
+</style>
+</head>
+<body>
+<h1>Hastane Otomasyonu — Veritabanı Şeması</h1>
+<blockquote>
+<p><strong>15 ilişkili tablo</strong> · <strong>SQL Server LocalDB</strong> · Dönem Projesi</p>
+</blockquote>
+<hr />
+<h2>İlişkisel Şema (Yazı Formatı)</h2>
+<p>Aşağıda MS Access ve standart ilişkisel veritabanı gösterim dillerine uygun biçimde projeye ait tablolar, nitelikleri (sütunlar), <strong>Birincil Anahtarlar (PK - Altı Çizili/Koyu)</strong> ve <em>Yabancı Anahtarlar (FK - İtalik)</em> metin formatında listelenmiştir.</p>
+<ol>
+<li><strong>Table_poliklinik</strong> ( <strong><u>poliklinik_id</u></strong>, poliklinik_ad, kat_bilgisi, aktif )</li>
+<li><strong>Table_brans</strong> ( <strong><u>brans_id</u></strong>, brans_ad, <em>poliklinik_id</em>, aktif, olusturma_tarihi )</li>
+<li><strong>Table_oda</strong> ( <strong><u>oda_id</u></strong>, oda_kodu, kat_no, <em>brans_id</em>, oda_durumu )</li>
+<li><strong>Table_sekreter</strong> ( <strong><u>sekreter_id</u></strong>, sekreter_tc, sekreter_adsoyad, sekreter_sifre, vardiya )</li>
+<li><strong>Table_doktor</strong> ( <strong><u>doktor_id</u></strong>, doktor_ad, doktor_soyad, doktor_tc, doktor_sifre, doktor_brans, <em>brans_id</em>, <em>poliklinik_id</em>, <em>oda_id</em> )</li>
+<li><strong>Table_hasta</strong> ( <strong><u>hasta_id</u></strong>, hasta_ad, hasta_soyad, hasta_tc, hasta_telefon, hasta_sifre, hasta_cinsiyet, kayit_tarihi, aktif )</li>
+<li><strong>Table_randevu</strong> ( <strong><u>randevu_id</u></strong>, randevu_tarih, randevu_saat, randevu_brans, randevu_doktor, randevu_durum, hasta_tc, randevu_sikayet, sekreter_tc, <em>brans_id</em>, <em>doktor_id</em>, <em>hasta_id</em>, olusturma_tarihi )</li>
+<li><strong>Table_duyuru</strong> ( <strong><u>duyuru_id</u></strong>, duyuru, olusturma_tarihi, olusturan_tc )</li>
+<li><strong>Table_recete</strong> ( <strong><u>recete_id</u></strong>, <em>randevu_id</em>, <em>hasta_id</em>, <em>doktor_id</em>, recete_notu, olusturma_tarihi )</li>
+<li><strong>Table_ilac</strong> ( <strong><u>ilac_id</u></strong>, ilac_ad, kullanim_sekli )</li>
+<li><strong>Table_recete_ilac</strong> ( <strong><u>recete_ilac_id</u></strong>, <em>recete_id</em>, <em>ilac_id</em>, dozaj )</li>
+<li><strong>Table_tetkik</strong> ( <strong><u>tetkik_id</u></strong>, <em>randevu_id</em>, tetkik_adi, sonuc_durumu, olusturma_tarihi )</li>
+<li><strong>Table_odeme</strong> ( <strong><u>odeme_id</u></strong>, <em>randevu_id</em>, tutar, odeme_tipi, odeme_durumu, odeme_tarihi )</li>
+<li><strong>Table_kullanici_log</strong> ( <strong><u>log_id</u></strong>, tablo_adi, islem_turu, aciklama, islem_tarihi, islem_yapan )</li>
+<li><strong>Table_randevu_log</strong> ( <strong><u>randevu_log_id</u></strong>, randevu_id, onceki_durum, yeni_durum, log_mesaji, log_tarihi )</li>
+</ol>
+<hr />
+<h2>Tablolar Özeti</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Tablo</th>
+<th>Sütun Sayısı</th>
+<th>Açıklama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>Table_poliklinik</code></td>
+<td>4</td>
+<td>Klinik bölümleri (Dahiliye, Cerrahi vb.)</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>Table_brans</code></td>
+<td>5</td>
+<td>Uzmanlık alanları</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>Table_oda</code></td>
+<td>5</td>
+<td>Muayene odaları</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>Table_doktor</code></td>
+<td>9</td>
+<td>Doktor profilleri</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>Table_sekreter</code></td>
+<td>5</td>
+<td>Sekreter kullanıcıları</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>Table_hasta</code></td>
+<td>9</td>
+<td>Hasta kayıtları</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>Table_randevu</code></td>
+<td>13</td>
+<td>Randevu slotları</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>Table_duyuru</code></td>
+<td>4</td>
+<td>İdari duyurular</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>Table_recete</code></td>
+<td>6</td>
+<td>Reçete başlıkları</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>Table_ilac</code></td>
+<td>3</td>
+<td>İlaç kataloğu</td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>Table_recete_ilac</code></td>
+<td>4</td>
+<td>Reçete–İlaç bağlantısı (ara tablo)</td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>Table_tetkik</code></td>
+<td>5</td>
+<td>Tetkik/Lab istekleri</td>
+</tr>
+<tr>
+<td>13</td>
+<td><code>Table_odeme</code></td>
+<td>6</td>
+<td>Ödeme kayıtları</td>
+</tr>
+<tr>
+<td>14</td>
+<td><code>Table_kullanici_log</code></td>
+<td>6</td>
+<td>Genel işlem logları (trigger kaynağı)</td>
+</tr>
+<tr>
+<td>15</td>
+<td><code>Table_randevu_log</code></td>
+<td>6</td>
+<td>Randevu değişim logları</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Yabancı Anahtar İlişkileri (15 FK Özeti)</h2>
+<p>Yazı dilinde tanımlanmış ilişkiler:</p>
+<ul>
+<li><strong>Table_brans</strong>, bağlı olduğu polikliniği referans alır (<code>poliklinik_id</code>).</li>
+<li><strong>Table_oda</strong>, bağlı olduğu branşı referans alır (<code>brans_id</code>).</li>
+<li><strong>Table_doktor</strong>; atandığı poliklinik (<code>poliklinik_id</code>), uzmanlık alanı (<code>brans_id</code>) ve odasını (<code>oda_id</code>) referans alır.</li>
+<li><strong>Table_randevu</strong>; randevunun oluşturulduğu branşı (<code>brans_id</code>), seçilen doktoru (<code>doktor_id</code>) ve randevuyu alan hastayı (<code>hasta_id</code>) referans alır.</li>
+<li><strong>Table_recete</strong>; hangi randevuda yazıldığını (<code>randevu_id</code>), hangi hastaya ait olduğunu (<code>hasta_id</code>) ve yazan doktoru (<code>doktor_id</code>) referans alır.</li>
+<li><strong>Table_recete_ilac</strong>; Çoka-Çok ilişki kurar. Reçete (<code>recete_id</code>) ve ilgili İlacı (<code>ilac_id</code>) referans alarak bağlar.</li>
+<li><strong>Table_tetkik</strong> ve <strong>Table_odeme</strong> tabloları direkt olarak ilgili randevuyu referans alır (<code>randevu_id</code>).</li>
+</ul>
+</body>
+</html>

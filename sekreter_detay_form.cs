@@ -13,6 +13,7 @@ namespace proje_hastane
         private readonly string tcno;
         private FlowLayoutPanel summaryPanel;
         private Button summaryButton;
+        private Button logButton;
         private bool summaryLoaded;
 
         public sekreter_detay_form()
@@ -117,6 +118,67 @@ namespace proje_hastane
             catch (Exception ex)
             {
                 MessageBox.Show("Randevu kaydedilemedi.\n" + ex.Message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // Secili randevuyu sil (CRUD - DELETE)
+        private void button_randevu_sil_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txt_id.Text) || txt_id.Text == "Oto")
+            {
+                MessageBox.Show("Lutfen once listedeki randevu satirina tiklayarak silinecek randevuyu secin.", "Uyari", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (MessageBox.Show("Bu randevuyu silmek istediginizden emin misiniz?", "Onay", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                return;
+
+            try
+            {
+                if (baglanti.ProcedureExists("sp_RandevuSil"))
+                {
+                    baglanti.ExecuteNonQuery("sp_RandevuSil", System.Data.CommandType.StoredProcedure,
+                        new SqlParameter("@randevu_id", txt_id.Text));
+                }
+                else
+                {
+                    baglanti.ExecuteNonQuery("DELETE FROM Table_odeme WHERE randevu_id = @randevu_id", new SqlParameter("@randevu_id", txt_id.Text));
+                    baglanti.ExecuteNonQuery("DELETE FROM Table_randevu WHERE randevu_id = @randevu_id", new SqlParameter("@randevu_id", txt_id.Text));
+                }
+
+                txt_id.Text = "Oto";
+                UpdateSummaryCards();
+                MessageBox.Show("Randevu silindi.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Randevu silinemedi.\n" + ex.Message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // Hasta TC'ye gore arama (dataGridView5 varsa doldur, yoksa MessageBox ile goster)
+        private void AramaYap(string hastaTc)
+        {
+            if (string.IsNullOrWhiteSpace(hastaTc))
+            {
+                MessageBox.Show("Arama icin TC numarasi girin.", "Uyari", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            DataRow row = baglanti.GetDataRow(
+                "SELECT hasta_ad, hasta_soyad, hasta_tc, hasta_telefon, hasta_cinsiyet FROM Table_hasta WHERE hasta_tc = @hasta_tc AND aktif = 1",
+                new SqlParameter("@hasta_tc", hastaTc));
+
+            if (row == null)
+            {
+                MessageBox.Show("Bu TC numarasina ait hasta bulunamadi.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                string mesaj = string.Format("Ad Soyad : {0} {1}\nTC       : {2}\nTelefon  : {3}\nCinsiyet : {4}",
+                    row["hasta_ad"], row["hasta_soyad"], row["hasta_tc"], row["hasta_telefon"], row["hasta_cinsiyet"]);
+                MessageBox.Show(mesaj, "Hasta Bulundu", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                msk_tc.Text = hastaTc;
             }
         }
 
@@ -315,6 +377,9 @@ namespace proje_hastane
 
             summaryButton = ModernTheme.CreateSecondaryButton("Sunum Ozeti", (sender, args) => ShowSummaryForm());
             groupBox6.Controls.Add(summaryButton);
+
+            logButton = ModernTheme.CreateSecondaryButton("Sistem Loglari", (sender, args) => ShowLogForm());
+            groupBox6.Controls.Add(logButton);
         }
 
         private void ArrangeDashboard()
@@ -353,8 +418,8 @@ namespace proje_hastane
 
             int finalRightWidth = ClientSize.Width - groupBox3.Right - margin - gap;
             groupBox4.SetBounds(groupBox3.Right + gap, contentTop, finalRightWidth, 220);
-            groupBox5.SetBounds(groupBox4.Left, groupBox4.Bottom + gap, finalRightWidth, Math.Max(190, contentHeight - 220 - 130 - (gap * 2)));
-            groupBox6.SetBounds(groupBox4.Left, groupBox5.Bottom + gap, finalRightWidth, 130);
+            groupBox5.SetBounds(groupBox4.Left, groupBox4.Bottom + gap, finalRightWidth, Math.Max(190, contentHeight - 220 - 180 - (gap * 2)));
+            groupBox6.SetBounds(groupBox4.Left, groupBox5.Bottom + gap, finalRightWidth, 180);
 
             LayoutSecretaryInfoGroup();
             LayoutAnnouncementGroup();
@@ -448,13 +513,21 @@ namespace proje_hastane
             button_brans_list.SetBounds(button_doktor_list.Right + gap, 30, buttonWidth, 34);
             button_randevu_list.SetBounds(padding, button_doktor_list.Bottom + gap, buttonWidth, 34);
             button_cıkıs.SetBounds(button_randevu_list.Right + gap, button_brans_list.Bottom + gap, buttonWidth, 34);
-            summaryButton.SetBounds(padding, button_randevu_list.Bottom + gap, groupBox6.ClientSize.Width - (padding * 2), 34);
+            summaryButton.SetBounds(padding, button_randevu_list.Bottom + gap, buttonWidth, 34);
+            if (logButton != null)
+                logButton.SetBounds(summaryButton.Right + gap, button_randevu_list.Bottom + gap, buttonWidth, 34);
         }
 
         private void ShowSummaryForm()
         {
             yonetim_ozeti_form summaryForm = new yonetim_ozeti_form(tcno);
             summaryForm.Show();
+        }
+
+        private void ShowLogForm()
+        {
+            log_paneli_form logForm = new log_paneli_form();
+            logForm.Show();
         }
     }
 }

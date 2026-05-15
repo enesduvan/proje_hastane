@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+body { font-family: Calibri, sans-serif; padding: 20px; }
+table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+th { background-color: #f2f2f2; }
+pre { background-color: #f8f8f8; padding: 10px; border: 1px solid #ddd; }
+</style>
+</head>
+<body>
+<h1>SUNUM REHBERİ — Hastane Otomasyonu Dönem Projesi</h1>
+<p><strong>Sunucu:</strong> <em>(Adınız)</em><br />
+<strong>Danışman:</strong> Arş. Gör. Safa Enes TÜRKOĞLU · Oda 308<br />
+<strong>Süre:</strong> ~15–20 dakika</p>
+<hr />
+<h2>🎯 Sunu Akışı</h2>
+<pre><code>1. Giriş ve Proje Tanıtımı          (2 dk)
+2. Veritabanı Şeması Gösterimi      (3 dk)
+3. Canlı Demo – Sekreter Paneli     (5 dk)
+4. Canlı Demo – Doktor/Hasta        (3 dk)
+5. İleri SQL Yapıları Açıklaması    (5 dk)
+6. Sorular ve Kapanış               (2 dk)
+</code></pre>
+<hr />
+<h2>Slayt 1 — Proje Tanıtımı</h2>
+<p><strong>Söylenecekler:</strong></p>
+<blockquote>
+<p>"Bu proje, bir hastane otomasyon sisteminin veritabanı ve arayüz katmanını kapsıyor. SQL Server LocalDB üzerinde 15 ilişkili tablo, C# WinForms arayüzü ve ADO.NET kullandım. Hasta, doktor ve sekreter olmak üzere 3 kullanıcı rolü var."</p>
+</blockquote>
+<p><strong>Ekranda göster:</strong> Ana giriş ekranı (main_login_form)</p>
+<hr />
+<h2>Slayt 2 — Veritabanı Şeması</h2>
+<p><strong>Söylenecekler:</strong></p>
+<blockquote>
+<p>"15 tablo ve 15 yabancı anahtar ilişkisi var. Temel zincir şu şekilde: Poliklinik → Branş → Oda → Doktor → Randevu → Reçete → İlaç. Ayrıca log, ödeme ve tetkik tabloları bu zincire bağlanıyor."</p>
+</blockquote>
+<p><strong>Ekranda göster:</strong> <a href="./veritabani_semasi.md">veritabani_semasi.md</a> — ER Diyagramı</p>
+<p><strong>Vurgula:</strong>
+- <code>Table_recete_ilac</code> → M:N ara tablo örneği
+- Log tabloları trigger ile otomatik dolduruluyor
+- <code>Table_odeme</code> → her randevuya otomatik ödeme kaydı</p>
+<hr />
+<h2>Slayt 3 — Canlı Demo: Sekreter Paneli (CRUD)</h2>
+<h3>Adım 1 — Giriş</h3>
+<ul>
+<li>TC: <code>33333333333</code> · Şifre: <code>1234</code> ile sekreter olarak gir</li>
+<li>Dashboard'daki <strong>Stat Kartlarını</strong> göster (View'dan geliyor)</li>
+</ul>
+<h3>Adım 2 — READ (Listeleme)</h3>
+<ul>
+<li>Sol panelde Branş listesi görünüyor</li>
+<li>Doktor listesi görünüyor</li>
+<li><strong>"Randevu Listesi"</strong> butonuna tıkla → <code>vw_RandevuSunum</code> view'ı</li>
+</ul>
+<h3>Adım 3 — CREATE (Randevu Oluşturma)</h3>
+<ul>
+<li>Ortadaki formu doldur: tarih, saat, branş, doktor seç</li>
+<li><strong>"Kaydet"</strong> tıkla → <code>sp_RandevuOlustur</code> çalışır (Transaction!)</li>
+<li>Stat kartlarının güncellediğini göster</li>
+</ul>
+<h3>Adım 4 — DELETE (Randevu Silme)</h3>
+<ul>
+<li>Randevu ID gir, <strong>"Randevuyu Sil"</strong> tıkla</li>
+<li><code>sp_RandevuSil</code> çalışır</li>
+</ul>
+<h3>Adım 5 — Duyuru CREATE</h3>
+<ul>
+<li>Duyuru metnini gir, <strong>"Oluştur"</strong> tıkla</li>
+</ul>
+<hr />
+<h2>Slayt 4 — Canlı Demo: Doktor Paneli (CRUD + Bilgi Güncelleme)</h2>
+<h3>Adım 1 — Doktor Girişi</h3>
+<ul>
+<li>TC: <code>11111111111</code> · Şifre: <code>1234</code></li>
+<li>Randevularını görüyor, şikayetleri okuyabiliyor</li>
+</ul>
+<h3>Adım 2 — Bilgi Güncelleme</h3>
+<ul>
+<li><strong>"Bilgi Güncelle"</strong> linkine tıkla</li>
+<li>Ad/Soyad/Şifre/Branş değiştir → <strong>"Güncelle"</strong> → <code>sp_DoktorGuncelle</code></li>
+<li><strong>Trigger çalıştı!</strong> → Log tablosuna kayıt gitti</li>
+</ul>
+<h3>Adım 3 — Sekreter'den Doktor CRUD</h3>
+<ul>
+<li>Sekreter → <strong>"Doktor Listesi"</strong> </li>
+<li>Yeni doktor ekle → <code>sp_DoktorKaydet</code></li>
+<li>Sil butonu → <code>sp_DoktorSil</code></li>
+</ul>
+<hr />
+<h2>Slayt 5 — Canlı Demo: Hasta Paneli</h2>
+<h3>Adım 1 — Hasta Girişi</h3>
+<ul>
+<li>TC: <code>22222222222</code> · Şifre: <code>1234</code></li>
+<li>Özet kartlar: kendi randevu sayısı, boş kontenjan, duyuru</li>
+</ul>
+<h3>Adım 2 — Randevu Alma (Transaction Demo)</h3>
+<ul>
+<li>Branş seç → Doktor seç → Şikayet yaz</li>
+<li>Boş slot'a çift tıkla → <strong>"Randevu Al"</strong></li>
+<li><code>sp_HastaRandevuAl</code> → Transaction içinde çalışır</li>
+<li>Dolu olan slota tıklamayı dene → <code>RAISERROR</code> ile hata döner, Rollback!</li>
+</ul>
+<h3>Adım 3 — Hasta Bilgi Güncelleme</h3>
+<ul>
+<li><strong>"Bilgi Güncelle"</strong> → <code>sp_HastaGuncelle</code></li>
+</ul>
+<hr />
+<h2>Slayt 6 — İleri SQL Yapıları (Kod Gösterimi)</h2>
+<h3>VIEW Örneği</h3>
+<pre><code class="language-sql">-- vw_YonetimOzeti — Sekreter stat kartlarına veri sağlar
+SELECT
+  (SELECT COUNT(*) FROM Table_hasta)      AS toplam_hasta,
+  (SELECT COUNT(*) FROM Table_doktor)     AS toplam_doktor,
+  (SELECT COUNT(*) FROM Table_brans)      AS toplam_brans,
+  ...
+</code></pre>
+<h3>TRIGGER Örneği</h3>
+<pre><code class="language-sql">-- trg_Doktor_Log — Doktor tablosu her değiştiğinde otomatik çalışır
+CREATE TRIGGER trg_Doktor_Log ON Table_doktor
+AFTER INSERT, UPDATE, DELETE AS
+BEGIN
+    INSERT INTO Table_kullanici_log (tablo_adi, islem_turu, ...)
+    SELECT 'Table_doktor',
+           CASE WHEN EXISTS(SELECT 1 FROM inserted) AND EXISTS(SELECT 1 FROM deleted)
+                THEN 'UPDATE' ... END, ...
+END
+</code></pre>
+<h3>TRANSACTION Örneği</h3>
+<pre><code class="language-sql">-- sp_HastaRandevuAl — Randevu dolu ise hata, değilse al
+BEGIN TRANSACTION;
+BEGIN TRY
+    IF EXISTS (... randevu_durum = 1)
+        RAISERROR('Secilen randevu dolu.', 16, 1);
+    UPDATE Table_randevu SET hasta_tc = @hasta_tc, randevu_durum = 1 ...
+    INSERT INTO Table_odeme ...
+    COMMIT TRANSACTION;
+END TRY
+BEGIN CATCH
+    ROLLBACK TRANSACTION; THROW;
+END CATCH
+</code></pre>
+<h3>FUNCTION Örneği</h3>
+<pre><code class="language-sql">-- fn_HastaRandevuSayisi — View içinde hesaplama için kullanılır
+CREATE FUNCTION fn_HastaRandevuSayisi(@hastaTc CHAR(11))
+RETURNS INT AS BEGIN
+    RETURN (SELECT COUNT(*) FROM Table_randevu WHERE hasta_tc = @hastaTc)
+END
+</code></pre>
+<hr />
+<h2>Slayt 7 — Yönetim Özeti (Log Gösterimi)</h2>
+<ul>
+<li>Sekreter paneli → <strong>"Sunum Özeti"</strong> butonu</li>
+<li><code>vw_RandevuSunum</code> view sonuçları tablo olarak</li>
+<li><code>Table_kullanici_log</code> — tetikleyicilerin yazdığı kayıtlar</li>
+<li><strong>"Veri bütünlüğü sağlanmış, hareketler izlenebilir"</strong> vurgusu</li>
+</ul>
+<hr />
+<h2>✅ Değerlendirme Kriterleri Kontrol</h2>
+<table>
+<thead>
+<tr>
+<th>Kriter</th>
+<th>Nerede Gösterilir</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CRUD — Create</td>
+<td>Hasta kayıt, doktor ekle, randevu oluştur, duyuru ekle</td>
+</tr>
+<tr>
+<td>CRUD — Read</td>
+<td>Randevu listesi, doktor listesi, yönetim özeti</td>
+</tr>
+<tr>
+<td>CRUD — Update</td>
+<td>Hasta bilgi güncelle, doktor bilgi güncelle</td>
+</tr>
+<tr>
+<td>CRUD — Delete</td>
+<td>Doktor sil, randevu sil, branş sil</td>
+</tr>
+<tr>
+<td>View</td>
+<td><code>vw_YonetimOzeti</code> stat kartları, <code>vw_RandevuSunum</code></td>
+</tr>
+<tr>
+<td>Trigger</td>
+<td>Doktor güncelle → log otomatik yazıldı</td>
+</tr>
+<tr>
+<td>Transaction</td>
+<td>Dolu randevuya tıkla → rollback göster</td>
+</tr>
+<tr>
+<td>Function</td>
+<td><code>vw_HastaRandevuGecmisi</code>'nde <code>fn_HastaRandevuSayisi</code></td>
+</tr>
+<tr>
+<td>Stored Procedure</td>
+<td>Her CRUD butonu bir SP çağırıyor</td>
+</tr>
+<tr>
+<td>Log Tabloları</td>
+<td>Yönetim özeti ekranında görülebilir</td>
+</tr>
+<tr>
+<td>10+ İlişkili Tablo</td>
+<td>ER Diyagramı — 15 tablo</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>🗂️ Sunuma Çıktı Alınacaklar</h2>
+<ol>
+<li><strong>Bu sunum rehberi</strong> (kısaltılmış hali)</li>
+<li><strong>Veritabanı şeması</strong> (<a href="./veritabani_semasi.md">veritabani_semasi.md</a>) — ER diyagramı ekran görüntüsü</li>
+<li><strong>Proje raporu</strong> (<a href="./proje_raporu.md">proje_raporu.md</a>) — baskıya hazır</li>
+</ol>
+<blockquote>
+<p>[!TIP]
+Sunumda önce şemayı göster, sonra canlı demo yap. "Şimdi bunu kodda göstereyim" geçişini kullan.</p>
+<p>[!IMPORTANT]
+Randevu alma Transaction demosu çok etkileyici — dolu slota tıklayıp rollback'i canlı göster!</p>
+</blockquote>
+</body>
+</html>

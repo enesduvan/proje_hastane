@@ -122,6 +122,9 @@
     <Compile Include="randevu_paneli_form.Designer.cs">
       <DependentUpon>randevu_paneli_form.cs</DependentUpon>
     </Compile>
+    <Compile Include="log_paneli_form.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="sekreter_detay_form.cs">
       <SubType>Form</SubType>
     </Compile>

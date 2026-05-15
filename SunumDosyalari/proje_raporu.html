@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+body { font-family: Calibri, sans-serif; padding: 20px; }
+table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+th { background-color: #f2f2f2; }
+pre { background-color: #f8f8f8; padding: 10px; border: 1px solid #ddd; }
+</style>
+</head>
+<body>
+<h1>HASTANE OTOMASYONu — VERİTABANI DÖNEMi PROJESİ RAPORU</h1>
+<p><strong>Öğrenci:</strong> <em>(Adınızı Yazın)</em><br />
+<strong>Danışman:</strong> Arş. Gör. Safa Enes TÜRKOĞLU (Oda: 308)<br />
+<strong>Ders:</strong> Veritabanı 2<br />
+<strong>Tarih:</strong> Mayıs 2026</p>
+<hr />
+<h2>1. Proje Özeti</h2>
+<p>Bu proje, gerçek bir hastane otomasyonunu modelleyen, C# WinForms teknolojisiyle geliştirilmiş masaüstü bir yönetim uygulamasıdır. Sistem, <strong>hasta</strong>, <strong>doktor</strong> ve <strong>sekreter</strong> olmak üzere üç farklı kullanıcı rolü üzerine inşa edilmiştir. Veritabanı olarak <strong>SQL Server LocalDB</strong> kullanılmış; veriler ADO.NET ile yönetilmektedir.</p>
+<p>Projenin temel hedefleri:
+- Hastane verilerini düzenli tutmak ve yönetmek
+- CRUD işlemlerini anlamlı bir senaryo üzerinden göstermek
+- View, Trigger, Transaction, Function, Stored Procedure ve Log gibi ileri SQL yapılarını üretim benzeri bir uygulamada kullanmak
+- En az 10 ilişkili tablodan oluşan bir veritabanı şeması tasarlamak</p>
+<hr />
+<h2>2. Sistem Mimarisi</h2>
+<pre><code>┌─────────────────────────────────────────────────────┐
+│              C# WinForms Uygulaması                 │
+│  ┌──────────┐  ┌──────────┐  ┌────────────────────┐ │
+│  │  Hasta   │  │  Doktor  │  │    Sekreter         │ │
+│  │  Paneli  │  │  Paneli  │  │    Yönetim Paneli   │ │
+│  └──────────┘  └──────────┘  └────────────────────┘ │
+│              ADO.NET / SqlClient                    │
+└─────────────────────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────┐
+│        SQL Server LocalDB — hastane_proje           │
+│  15 Tablo · 4 View · 11 SP · 2 Function · 3 Trigger │
+└─────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2>3. Veritabanı Tasarımı — 15 İlişkili Tablo</h2>
+<p>Proje veritabanı, <strong>15 ilişkili tablo</strong> içermekte olup tüm tablolar yabancı anahtar kısıtlamalarıyla birbirine bağlanmıştır.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Tablo</th>
+<th>Açıklama</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>Table_poliklinik</code></td>
+<td>Hastane bölümleri (Dahiliye, Cerrahi vb.)</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>Table_brans</code></td>
+<td>Uzmanlık alanları</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>Table_oda</code></td>
+<td>Muayene odaları</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>Table_doktor</code></td>
+<td>Doktor profilleri ve branş atamaları</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>Table_sekreter</code></td>
+<td>Sekreter kullanıcıları</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>Table_hasta</code></td>
+<td>Hasta kayıtları</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>Table_randevu</code></td>
+<td>Randevu slotları</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>Table_duyuru</code></td>
+<td>İdari duyurular</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>Table_recete</code></td>
+<td>Reçete başlıkları</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>Table_ilac</code></td>
+<td>İlaç kataloğu</td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>Table_recete_ilac</code></td>
+<td>Reçete–İlaç bağlantı tablosu (M:N ara tablo)</td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>Table_tetkik</code></td>
+<td>Tetkik/Laboratuvar istekleri</td>
+</tr>
+<tr>
+<td>13</td>
+<td><code>Table_odeme</code></td>
+<td>Muayene ödeme kayıtları</td>
+</tr>
+<tr>
+<td>14</td>
+<td><code>Table_kullanici_log</code></td>
+<td>Genel işlem logları</td>
+</tr>
+<tr>
+<td>15</td>
+<td><code>Table_randevu_log</code></td>
+<td>Randevu değişim logları</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Temel ilişkiler:</strong> Poliklinik → Branş → Oda → Doktor → Randevu → Reçete → İlaç zinciri oluşturulmaktadır. Bu sayede hiyerarşik bir veri modeli kurulmuştur.</p>
+<hr />
+<h2>4. CRUD İşlemleri</h2>
+<table>
+<thead>
+<tr>
+<th>İşlem</th>
+<th>Kapsam</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CREATE</strong></td>
+<td>Hasta kayıt, Doktor ekleme, Branş ekleme, Randevu oluşturma, Duyuru ekleme</td>
+</tr>
+<tr>
+<td><strong>READ</strong></td>
+<td>Hasta randevu geçmişi, Doktor listesi, Randevu listesi, Branş listesi, Duyuru listesi, Yönetim özeti</td>
+</tr>
+<tr>
+<td><strong>UPDATE</strong></td>
+<td>Hasta bilgi güncelleme, Doktor bilgi güncelleme, Branş adı güncelleme</td>
+</tr>
+<tr>
+<td><strong>DELETE</strong></td>
+<td>Doktor silme, Branş silme, Randevu silme (sekreter yetkili)</td>
+</tr>
+</tbody>
+</table>
+<p>Her CRUD işlemi hem <strong>Stored Procedure</strong> üzerinden hem de SP bulunamazsa doğrudan SQL sorgusuyla (fallback) çalışmaktadır.</p>
+<hr />
+<h2>5. İleri SQL Yapıları</h2>
+<h3>5.1 View (4 Adet)</h3>
+<table>
+<thead>
+<tr>
+<th>View Adı</th>
+<th>Kullanım Amacı</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>vw_DoktorBransListesi</code></td>
+<td>Doktor–branş–poliklinik–oda–randevu sayısı birleşik görünümü</td>
+</tr>
+<tr>
+<td><code>vw_RandevuSunum</code></td>
+<td>Randevu sunum ekranı için hazır görünüm</td>
+</tr>
+<tr>
+<td><code>vw_HastaRandevuGecmisi</code></td>
+<td>Hastanın tüm randevularını tek sorguda sunar</td>
+</tr>
+<tr>
+<td><code>vw_YonetimOzeti</code></td>
+<td>Özet istatistikler: hasta, doktor, boş randevu, log sayısı</td>
+</tr>
+<tr>
+<td><code>vw_OdemeRaporu</code></td>
+<td>Ödeme–randevu–hasta birleşik finans raporu</td>
+</tr>
+</tbody>
+</table>
+<h3>5.2 Stored Procedure (11 Adet)</h3>
+<table>
+<thead>
+<tr>
+<th>Stored Procedure</th>
+<th>İşlev</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sp_HastaKaydet</code></td>
+<td>Yeni hasta ekleme</td>
+</tr>
+<tr>
+<td><code>sp_HastaGuncelle</code></td>
+<td>Hasta bilgisi güncelleme</td>
+</tr>
+<tr>
+<td><code>sp_HastaSil</code></td>
+<td>Soft-delete ile hasta pasifleştirme</td>
+</tr>
+<tr>
+<td><code>sp_DoktorKaydet</code></td>
+<td>Yeni doktor ekleme (branş ID otomatik atanır)</td>
+</tr>
+<tr>
+<td><code>sp_DoktorGuncelle</code></td>
+<td>Doktor bilgisi güncelleme</td>
+</tr>
+<tr>
+<td><code>sp_DoktorSil</code></td>
+<td>Doktor silme</td>
+</tr>
+<tr>
+<td><code>sp_BransKaydet</code></td>
+<td>Yeni branş ekleme</td>
+</tr>
+<tr>
+<td><code>sp_BransGuncelle</code></td>
+<td>Branş adı güncelleme</td>
+</tr>
+<tr>
+<td><code>sp_BransSil</code></td>
+<td>Branş silme</td>
+</tr>
+<tr>
+<td><code>sp_DuyuruOlustur</code></td>
+<td>Yeni duyuru oluşturma</td>
+</tr>
+<tr>
+<td><code>sp_RandevuOlustur</code></td>
+<td>Transaction korumalı randevu oluşturma</td>
+</tr>
+<tr>
+<td><code>sp_HastaRandevuAl</code></td>
+<td>Transaction korumalı hasta randevu alma</td>
+</tr>
+<tr>
+<td><code>sp_RandevuSil</code></td>
+<td>Randevu ve ilişkili ödeme silme</td>
+</tr>
+</tbody>
+</table>
+<h3>5.3 Transaction (2 Adet)</h3>
+<p><code>sp_RandevuOlustur</code> ve <code>sp_HastaRandevuAl</code> stored procedure'leri <strong>BEGIN TRANSACTION / COMMIT / ROLLBACK</strong> bloğu içermektedir. Hata durumunda tüm değişiklikler geri alınarak veri bütünlüğü korunmaktadır.</p>
+<pre><code class="language-sql">BEGIN TRANSACTION;
+BEGIN TRY
+    -- Kritik işlemler...
+    COMMIT TRANSACTION;
+END TRY
+BEGIN CATCH
+    IF @@TRANCOUNT &gt; 0 ROLLBACK TRANSACTION;
+    THROW;
+END CATCH
+</code></pre>
+<h3>5.4 Function (2 Adet)</h3>
+<table>
+<thead>
+<tr>
+<th>Fonksiyon</th>
+<th>Dönüş</th>
+<th>Kullanım</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fn_HastaRandevuSayisi(@hastaTc)</code></td>
+<td>INT</td>
+<td>Bir hastanın toplam randevu sayısı</td>
+</tr>
+<tr>
+<td><code>fn_DoktorRandevuSayisi(@doktorId)</code></td>
+<td>INT</td>
+<td>Bir doktorun toplam randevu sayısı</td>
+</tr>
+</tbody>
+</table>
+<p>Bu fonksiyonlar view'lar ve özet ekranlarda hesaplama için kullanılmaktadır.</p>
+<h3>5.5 Trigger (3 Adet)</h3>
+<table>
+<thead>
+<tr>
+<th>Trigger</th>
+<th>Tetiklenme</th>
+<th>Aksiyon</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>trg_Doktor_Log</code></td>
+<td><code>Table_doktor</code> INSERT/UPDATE/DELETE</td>
+<td><code>Table_kullanici_log</code>'a kayıt yazar</td>
+</tr>
+<tr>
+<td><code>trg_Randevu_Log</code></td>
+<td><code>Table_randevu</code> INSERT/UPDATE</td>
+<td><code>Table_randevu_log</code> + <code>Table_kullanici_log</code>'a kayıt yazar</td>
+</tr>
+<tr>
+<td><code>trg_Hasta_Log</code></td>
+<td><code>Table_hasta</code> INSERT/UPDATE/DELETE</td>
+<td><code>Table_kullanici_log</code>'a kayıt yazar</td>
+</tr>
+</tbody>
+</table>
+<h3>5.6 Log Tabloları (2 Adet)</h3>
+<ul>
+<li><strong><code>Table_kullanici_log</code></strong>: Tablo adı, işlem türü, açıklama, tarih ve <code>SYSTEM_USER</code> bilgisi ile tüm kritik değişiklikler kaydedilir.</li>
+<li><strong><code>Table_randevu_log</code></strong>: Randevu durumunun önceki ve yeni değeri, değişim mesajı ve tarihi kaydedilir.</li>
+</ul>
+<hr />
+<h2>6. Arayüz Özellikleri</h2>
+<ul>
+<li><strong>3 Kullanıcı Rolü</strong>: Hasta / Doktor / Sekreter — ayrı giriş ekranları</li>
+<li><strong>ModernTheme</strong>: Tüm formlarda tutarlı koyu renk teması</li>
+<li><strong>Stat Kartları</strong>: Sekreter ve hasta panelinde canlı güncellenen özet metrikler</li>
+<li><strong>DataGridView</strong>: Doktor, branş, randevu ve log listelerinde kullanılan tablo bileşeni</li>
+<li><strong>Dinamik Layout</strong>: Form yeniden boyutlandırıldığında arayüz otomatik uyum sağlar</li>
+</ul>
+<hr />
+<h2>7. Demo Kullanıcıları</h2>
+<table>
+<thead>
+<tr>
+<th>Rol</th>
+<th>TC No</th>
+<th>Şifre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sekreter</td>
+<td><code>33333333333</code></td>
+<td><code>1234</code></td>
+</tr>
+<tr>
+<td>Doktor (Kardiyoloji)</td>
+<td><code>11111111111</code></td>
+<td><code>1234</code></td>
+</tr>
+<tr>
+<td>Hasta</td>
+<td><code>22222222222</code></td>
+<td><code>1234</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>8. Gereksinimler Kontrol Listesi</h2>
+<table>
+<thead>
+<tr>
+<th>Kriter</th>
+<th>Durum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CRUD (Ekleme, Silme, Güncelleme, Arama)</td>
+<td>✅ Tam</td>
+</tr>
+<tr>
+<td>View</td>
+<td>✅ 5 adet</td>
+</tr>
+<tr>
+<td>Trigger</td>
+<td>✅ 3 adet</td>
+</tr>
+<tr>
+<td>Transaction</td>
+<td>✅ 2 adet</td>
+</tr>
+<tr>
+<td>Function</td>
+<td>✅ 2 adet</td>
+</tr>
+<tr>
+<td>Stored Procedure</td>
+<td>✅ 13 adet</td>
+</tr>
+<tr>
+<td>Log Tabloları</td>
+<td>✅ 2 adet</td>
+</tr>
+<tr>
+<td>En az 10 ilişkili tablo</td>
+<td>✅ 15 tablo</td>
+</tr>
+<tr>
+<td>Veritabanı Şeması</td>
+<td>✅ ER Diyagramı hazır</td>
+</tr>
+<tr>
+<td>Bağımsız Rapor (max 5 sayfa)</td>
+<td>✅ Bu belge</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>
